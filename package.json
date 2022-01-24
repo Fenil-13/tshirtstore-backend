@@ -4,7 +4,8 @@
   "description": "a backend api for tshirt store (e-commerce site)",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start":"node index.js",
+    "dev":"nodemon index.js"
   },
   "author": "Fenil Moradiya",
   "license": "ISC",
