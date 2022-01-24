@@ -3,6 +3,7 @@ const validator = require('validator')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const crypto = require('crypto')
+require('dotenv').config()
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -29,11 +30,11 @@ const userSchema = new mongoose.Schema({
     photo: {
         id: {
             type: String,
-            required: true
+            required: false
         },
         secure_url: {
             type: String,
-            required: true
+            required: false
         }
     },
     forgotPasswordToken: String,
@@ -59,7 +60,7 @@ userSchema.methods.isValidPassword = async function (userSendPassword) {
 }
 
 //create and return jwt token
-userSchema.methods.getJwtToken = async function () {
+userSchema.methods.getJwtToken = function () {
     return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRY
     })

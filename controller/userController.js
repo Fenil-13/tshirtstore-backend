@@ -3,6 +3,7 @@ const BigPromise = require('../middlewares/bigPromis')
 const CustomError = require('../utils/CustomError')
 const cookieToken = require('../utils/cookieToken')
 
+
 exports.signup = BigPromise(async (req, res, next) => {
     const { name, email, password } = req.body
 
