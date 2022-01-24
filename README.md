@@ -17,6 +17,8 @@
 - razorpay
 - stripe
 - validator
+- swagger-ui-express
+- yamljs
 - nodemon (-D)
 
 ---
