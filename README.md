@@ -1,0 +1,26 @@
+# T-shirt Store (e-commerce app) API
+
+---
+
+# Used npm packages
+
+- bcryptjs
+- cloudinary
+- cookie-parser
+- dotenv
+- express
+- express-fileupload
+- jsonwebtoken
+- mongoose
+- morgan
+- nodemailer
+- razorpay
+- stripe
+- validator
+- nodemon (-D)
+
+---
+
+# Postman Collection
+
+[Link](https://www.getpostman.com/collections/a619fcf25776e09cae95)
