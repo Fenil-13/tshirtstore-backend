@@ -19,6 +19,7 @@
 - validator
 - swagger-ui-express
 - yamljs
+- crypto
 - nodemon (-D)
 
 ---

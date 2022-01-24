@@ -1,5 +1,4 @@
 const express = require('express')
-const { from } = require('responselike')
 const router = express.Router()
 
 const { home, homeDummy } = require('../controller/homeController')
