@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
+const bcrypt = require('bcryptjs')
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -41,5 +42,18 @@ const userSchema = new mongoose.Schema({
     }
 })
 
+//encrypt password before save password
+//Trigger pre and post hook
+userSchema.pre('save', async function (next) {
+    if (!this.isModified('password')) {
+        return next()
+    }
+    this.password = await bcrypt.hash(this.password, 10)
+})
+
+//validate the password with passed on user password
+userSchema.methods.isValidPassword = async function (userSendPassword) {
+    return await bcrypt.compare(userSendPassword, this.password)
+}
 
 module.exports = mongoose.model('user', userSchema)
