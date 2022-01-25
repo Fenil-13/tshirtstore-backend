@@ -2,7 +2,6 @@ const User = require('../models/user')
 const BigPromise = require('../middlewares/bigPromis')
 const CustomError = require('../utils/CustomError')
 const cookieToken = require('../utils/cookieToken')
-const fileUpload = require('express-fileupload')
 const cloudinary = require('cloudinary').v2
 
 exports.signup = BigPromise(async (req, res, next) => {
@@ -65,4 +64,15 @@ exports.login = BigPromise(async (req, res, next) => {
 
     //send jwt token to user 
     cookieToken(user, res)
+})
+
+exports.logout = BigPromise(async (req, res, next) => {
+    res.cookie('token', null, {
+        expires: new Date(Date.now()),
+        httpOnly: true
+    })
+    res.status(200).json({
+        success: true,
+        message: "Logout success"
+    })
 })
