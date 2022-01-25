@@ -74,8 +74,8 @@ userSchema.methods.getForgotPasswordToken = async function () {
     // getting hash - make sure to get a hash on backend
     this.forgotPasswordToken = crypto.createHash('sha256').update(forgotToken).digest('hex');
 
-    //time of token
-    this.forgotPasswordExipary = Date.now() + process.env.FORGOT_PASSWORD_EXPIRY
+    //time of token(20 min)
+    this.forgotPasswordExipary = Date.now() + process.env.FORGOT_PASSWORD_EXPIRY * 60 * 1000
 
     return forgotToken
 }

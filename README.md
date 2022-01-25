@@ -25,6 +25,11 @@
 
 ---
 
+# Services
+
+- mailtrap
+- cloudinary
+
 # Postman Collection
 
 [Link](https://www.getpostman.com/collections/a619fcf25776e09cae95)

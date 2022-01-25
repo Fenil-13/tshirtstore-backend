@@ -3,6 +3,7 @@ const BigPromise = require('../middlewares/bigPromis')
 const CustomError = require('../utils/CustomError')
 const cookieToken = require('../utils/cookieToken')
 const cloudinary = require('cloudinary').v2
+const mailhelper = require('../utils/emailHelper')
 
 exports.signup = BigPromise(async (req, res, next) => {
 
@@ -75,4 +76,40 @@ exports.logout = BigPromise(async (req, res, next) => {
         success: true,
         message: "Logout success"
     })
+})
+
+exports.forgotPassword = BigPromise(async (req, res, next) => {
+    const { email } = req.body
+
+    //check exits user for that email
+    const user = await User.findOne({ email })
+    if (!user) {
+        return next(new CustomError('Email not found as registered', 404))
+    }
+
+    const forgotToken = await user.getForgotPasswordToken()
+
+    await user.save({ validateBeforeSave: false }) //not check validate bcz some data are not preset
+
+    const forgotUrl = `${req.protocol}://${req.get("host")}/password/reset/${forgotToken}`
+
+    const message = `Copy paste this link or click this \n\n ${forgotUrl}`
+
+    try {
+        await mailhelper({
+            emails: user.email,
+            subject: "CodeX Password Reset Email",
+            message
+        })
+
+        res.status(200).json({
+            success: true,
+            message: "Email sent successfully"
+        })
+    } catch (error) {
+        user.forgotPasswordToken = undefined
+        user.forgotPasswordExipary = undefined
+        await user.save({ validateBeforeSave: false })
+        return next(new CustomError(error.message, 500))
+    }
 })
