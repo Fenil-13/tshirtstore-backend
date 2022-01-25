@@ -20,6 +20,7 @@
 - swagger-ui-express
 - yamljs
 - crypto
+- ejs
 - nodemon (-D)
 
 ---
