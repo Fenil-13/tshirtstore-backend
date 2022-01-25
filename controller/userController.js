@@ -4,6 +4,7 @@ const CustomError = require('../utils/CustomError')
 const cookieToken = require('../utils/cookieToken')
 const cloudinary = require('cloudinary').v2
 const mailhelper = require('../utils/emailHelper')
+const crypto = require('crypto')
 
 exports.signup = BigPromise(async (req, res, next) => {
 
@@ -91,7 +92,7 @@ exports.forgotPassword = BigPromise(async (req, res, next) => {
 
     await user.save({ validateBeforeSave: false }) //not check validate bcz some data are not preset
 
-    const forgotUrl = `${req.protocol}://${req.get("host")}/password/reset/${forgotToken}`
+    const forgotUrl = `${req.protocol}://${req.get("host")}/api/v1/password/reset/${forgotToken}`
 
     const message = `Copy paste this link or click this \n\n ${forgotUrl}`
 
@@ -112,4 +113,28 @@ exports.forgotPassword = BigPromise(async (req, res, next) => {
         await user.save({ validateBeforeSave: false })
         return next(new CustomError(error.message, 500))
     }
+})
+
+exports.resetPassword = BigPromise(async (req, res, next) => {
+    const token = req.params.token
+
+    const encryToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await User.findOne({
+        encryToken,
+        forgotPasswordExipary: { $gt: Date.now() }
+    })
+
+    if (!user) {
+        return next(new CustomError('Token in unvalid or expiry', 404))
+    }
+    if (req.body.password !== req.body.confirmPassword) {
+        return next(new CustomError('Password and confirm password do not match', 404))
+    }
+    user.password = req.body.password
+    user.forgotPasswordToken = undefined
+    user.forgotPasswordExipary = undefined
+    await user.save()
+
+    cookieToken(user, res)
 })
