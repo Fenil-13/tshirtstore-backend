@@ -225,24 +225,56 @@ exports.manageAllUsers = BigPromise(async (req, res, next) => {
     })
 })
 exports.adminGetOneUser = BigPromise(async (req, res, next) => {
-    const users = await User.findById(req.params.id)
-
+    const user = await User.findById(req.params.id)
+    if (!user) {
+        return next(new CustomError('User not found', 400))
+    }
     res.status(200).json({
         success: true,
-        users
+        user
     })
 })
 
 
 exports.adminUpdateUserDetails = BigPromise(async (req, res, next) => {
 
+
+    if (!req.body.name || !req.body.email || !req.body.role) {
+        return next(new CustomError('Details Insufficient', 400))
+    }
+
     const newData = {
         name: req.body.name,
         email: req.body.email,
         role: req.body.role
     };
+    let user = await User.findById(req.params.id)
 
-    const user = await User.findByIdAndUpdate(req.params.id, newData, {
+    if (!user) {
+        return next(new CustomError('User not found', 400))
+    }
+    if (req.files) {
+
+        const imageId = user.photo.id
+
+        //delete photo
+        await cloudinary.uploader.destroy(imageId)
+
+        let file = req.files.userPhoto
+
+        const result = await cloudinary.uploader.upload(file.tempFilePath, {
+            folder: "users",
+            width: 150,
+            crop: "scale"
+        })
+
+        newData.photo = {
+            id: result.public_id,
+            secure_url: result.secure_url
+        }
+    }
+
+    user = await User.findByIdAndUpdate(user._id, newData, {
         new: true,
         runValidators: true,
         useFindAndModify: false
@@ -257,7 +289,18 @@ exports.adminUpdateUserDetails = BigPromise(async (req, res, next) => {
 
 exports.adminDeleteUserDetails = BigPromise(async (req, res, next) => {
 
-    const user = await User.findByIdAndDelete(req.params.id)
+    const user = await User.findById(req.params.id)
+    if (!user) {
+        return next(new CustomError('User not found', 400))
+    }
+
+
+    const imageId = user.photo.id
+
+    //delete photo
+    await cloudinary.uploader.destroy(imageId)
+
+    await user.remove()
 
     res.status(200).json({
         success: true

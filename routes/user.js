@@ -27,7 +27,7 @@ router.route('/password/update').get(isLoggedIn, changePassword);
 router.route('/userdashboard/update').post(isLoggedIn, updateUserDetails);
 
 
-router.route('/admin/users').get(isLoggedIn, customRole('manager'), adminAllUsers);
+router.route('/admin/users').get(isLoggedIn, customRole('admin'), adminAllUsers);
 router.route('/manager/users').get(isLoggedIn, customRole('manager'), manageAllUsers);
 router.route('/admin/users/:id')
     .get(isLoggedIn, customRole('admin'), adminGetOneUser)
