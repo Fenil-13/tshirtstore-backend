@@ -5,6 +5,7 @@ const cookieToken = require('../utils/cookieToken')
 const cloudinary = require('cloudinary').v2
 const mailhelper = require('../utils/emailHelper')
 const crypto = require('crypto')
+const { token } = require('morgan')
 
 exports.signup = BigPromise(async (req, res, next) => {
 
@@ -146,4 +147,19 @@ exports.getLoggedInUserDetails = BigPromise(async (req, res, next) => {
         success: true,
         user
     })
+})
+
+exports.changePassword = BigPromise(async (req, res, next) => {
+    const user = req.user
+
+    const isCorrectOldPassword = await user.isValidPassword(req.body.oldPassword)
+
+    if (!isCorrectOldPassword) {
+        return new CustomError("Invalid Old Password", 404)
+    }
+
+    user.password = req.body.newPassword
+    await user.save()
+
+    cookieToken(user, res)
 })
