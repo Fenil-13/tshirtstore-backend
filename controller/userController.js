@@ -202,7 +202,66 @@ exports.updateUserDetails = BigPromise(async (req, res, next) => {
         success: true
     })
 
+    cookieToken(user, res)
+})
 
+
+//admin routes
+exports.adminAllUsers = BigPromise(async (req, res, next) => {
+    const users = await User.find()
+
+    res.status(200).json({
+        success: true,
+        users
+    })
+})
+
+exports.manageAllUsers = BigPromise(async (req, res, next) => {
+    const users = await User.find({ role: "user" })
+
+    res.status(200).json({
+        success: true,
+        users
+    })
+})
+exports.adminGetOneUser = BigPromise(async (req, res, next) => {
+    const users = await User.findById(req.params.id)
+
+    res.status(200).json({
+        success: true,
+        users
+    })
+})
+
+
+exports.adminUpdateUserDetails = BigPromise(async (req, res, next) => {
+
+    const newData = {
+        name: req.body.name,
+        email: req.body.email,
+        role: req.body.role
+    };
+
+    const user = await User.findByIdAndUpdate(req.params.id, newData, {
+        new: true,
+        runValidators: true,
+        useFindAndModify: false
+    })
+
+    res.status(200).json({
+        success: true
+    })
+
+    cookieToken(user, res)
+})
+
+exports.adminDeleteUserDetails = BigPromise(async (req, res, next) => {
+
+    const user = await User.findByIdAndDelete(req.params.id)
+
+    res.status(200).json({
+        success: true
+    })
 
     cookieToken(user, res)
 })
