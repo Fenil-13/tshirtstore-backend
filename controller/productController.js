@@ -2,6 +2,7 @@ const Product = require('../models/product')
 const BigPromise = require('../middlewares/bigPromis')
 const cloudinary = require('cloudinary').v2
 const WhereClause = require('../utils/whereClause')
+const CustomError = require('../utils/CustomError')
 
 exports.addProduct = BigPromise(async (req, res, next) => {
     //images
@@ -55,4 +56,27 @@ exports.getAllProduct = BigPromise(async (req, res, next) => {
         totalcountProduct
     })
 
+})
+
+exports.getOneProduct = BigPromise(async (req, res, next) => {
+    const product = await Product.findById(req.params.id)
+
+    if (!product) {
+        return new CustomError('No Product Found', 401)
+    }
+
+
+    res.status(200).json({
+        success: true,
+        product
+    })
+})
+
+exports.adminGetAllProduct = BigPromise(async (req, res, next) => {
+    const products = await Product.find();
+
+    res.status(200).json({
+        success: true,
+        products
+    })
 })
