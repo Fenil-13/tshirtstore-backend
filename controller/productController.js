@@ -7,7 +7,7 @@ const CustomError = require('../utils/CustomError')
 exports.addProduct = BigPromise(async (req, res, next) => {
     //images
     let imageArray = []
-
+    console.log(req.files)
     if (!req.files) {
         return next(new CustomError('Picture required', 400))
     }
@@ -62,7 +62,7 @@ exports.getOneProduct = BigPromise(async (req, res, next) => {
     const product = await Product.findById(req.params.id)
 
     if (!product) {
-        return new CustomError('No Product Found', 401)
+        return next(new CustomError('No Product Found', 401))
     }
 
 
@@ -72,11 +72,79 @@ exports.getOneProduct = BigPromise(async (req, res, next) => {
     })
 })
 
+
+//admin only code
 exports.adminGetAllProduct = BigPromise(async (req, res, next) => {
     const products = await Product.find();
 
     res.status(200).json({
         success: true,
         products
+    })
+})
+
+exports.adminUpdateOneProduct = BigPromise(async (req, res, next) => {
+    let product = await Product.findById(req.params.id);
+
+    if (!product) {
+        return next(new CustomError('No Product Found', 401))
+    }
+
+    let imageArray = []
+
+    if (req.files) {
+        //destroy exitisting images
+
+        for (let index = 0; index < product.photos.length; index++) {
+            const result = await cloudinary.uploader.destroy(product.photos[index].id)
+        }
+
+        //upload and save the images
+
+        for (let index = 0; index < req.files.photos.length; index++) {
+            let result = await cloudinary.uploader.upload(req.files.photos[index].tempFilePath, {
+                folder: "products"
+            })
+
+            imageArray.push({
+                id: result.public_id,
+                secure_url: result.secure_url
+            })
+        }
+    }
+
+
+    req.body.photos = imageArray
+    product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true,
+        useFindAndModify: false
+    })
+
+
+    res.status(200).json({
+        success: true,
+        product
+    })
+})
+
+exports.adminDeleteOneProduct = BigPromise(async (req, res, next) => {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+        return next(new CustomError('No Product Found', 401))
+    }
+
+    //destroy exitisting images
+
+    for (let index = 0; index < product.photos.length; index++) {
+        await cloudinary.uploader.destroy(product.photos[index].id)
+    }
+
+    await product.remove()
+
+    res.status(200).json({
+        success: true,
+        message: "Product was deleted !"
     })
 })
