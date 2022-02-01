@@ -81,7 +81,7 @@ exports.addReview = BigPromise(async (req, res, next) => {
         rating: Number(rating),
         comment
     }
-    const product = await Product.findById(req.body.id)
+    const product = await Product.findById(productId)
 
     if (!product) {
         return next(new CustomError('No Product Found', 401))
@@ -118,6 +118,52 @@ exports.addReview = BigPromise(async (req, res, next) => {
     })
 })
 
+exports.deleteReview = BigPromise(async (req, res, next) => {
+    const { productId } = req.query;
+
+    const product = await Product.findById(productId)
+
+    if (!product) {
+        return next(new CustomError('No Product Found', 401))
+    }
+
+    const reviews = product.reviews.filter(
+        (rev) => rev.user.toString() === req.user._id.toString()
+    )
+
+    const numberOfReviews = reviews.length
+
+    //adjust rating
+    product.ratings =
+        product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+        product.reviews.length;
+
+    //update the project
+    await Product.findByIdAndUpdate(productId, {
+        reviews,
+        ratings,
+        numberOfReviews
+    }, {
+        new: true,
+        runValidators: true,
+        useFindAndModify: false
+    }
+    )
+
+    res.status(200).json({
+        success: true,
+        product
+    })
+})
+
+exports.getOnlyReviewsForOneProduct = BigPromise(async (req, res, next) => {
+    const product = await Product.findById(req.query.id)
+
+    res.status(200).json({
+        success: true,
+        reviews: product.reviews
+    })
+})
 
 //admin only code
 exports.adminGetAllProduct = BigPromise(async (req, res, next) => {
