@@ -29,7 +29,7 @@ const orderSchema = new mongoose.Schema({
     },
     user: {
         type: mongoose.Schema.ObjectId,
-        ref: 'User',
+        ref: 'user',
         required: true
     },
     orderItems: [{
@@ -51,7 +51,7 @@ const orderSchema = new mongoose.Schema({
         },
         product: {
             type: mongoose.Schema.ObjectId,
-            ref: 'Product',
+            ref: 'product',
             required: true
         }
     }],
@@ -81,7 +81,8 @@ const orderSchema = new mongoose.Schema({
         type: Date
     },
     createdAt: {
-        type: Date
+        type: Date,
+        default: Date.now
     }
 })
 module.exports = mongoose.model('order', orderSchema)
