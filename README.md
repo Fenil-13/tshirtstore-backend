@@ -21,6 +21,7 @@
 - yamljs
 - crypto
 - ejs
+- nanoid
 - nodemon (-D)
 
 ---
