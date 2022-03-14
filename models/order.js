@@ -32,7 +32,7 @@ const orderSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    orderItem: [{
+    orderItems: [{
         name: {
             type: String,
             required: true
@@ -81,8 +81,7 @@ const orderSchema = new mongoose.Schema({
         type: Date
     },
     createdAt: {
-        type: Date,
-        required: true
+        type: Date
     }
 })
 module.exports = mongoose.model('order', orderSchema)
