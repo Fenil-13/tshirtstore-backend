@@ -88,6 +88,24 @@ exports.adminUpdateOrder = BigPromise(async (req, res, next) => {
         order
     });
 })
+
+exports.adminDeleteOrder = BigPromise(async (req, res, next) => {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+        return next(new CustomError("Orders not found", 401))
+    }
+
+
+
+    await order.remove();
+
+    res.status(200).json({
+        success: true
+    });
+})
+
+
 async function updateProductStock(productId, quantity) {
     const product = await Product.findById(productId)
 
